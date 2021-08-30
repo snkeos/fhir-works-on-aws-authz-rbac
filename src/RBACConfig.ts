@@ -13,8 +13,11 @@ export interface Rule {
 export interface GroupRule {
     [groupName: string]: Rule;
 }
-
+export interface ScopeToGroup {
+    [scope: string]: string;
+}
 export interface RBACConfig {
     version: number;
     groupRules: GroupRule;
+    scopeToGroup: ScopeToGroup;
 }

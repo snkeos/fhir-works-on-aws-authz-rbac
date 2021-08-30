@@ -48,7 +48,7 @@ export class RBACHandler implements Authorization {
 
     async verifyAccessToken(request: VerifyAccessTokenRequest): Promise<KeyValueMap> {
         const decoded = decode(request.accessToken, { json: true }) ?? {};
-        const groups: string[] = decoded['cognito:groups'] ?? [];
+        const groups: string[] = this.getGroups(decoded);
 
         if (request.bulkDataAuth) {
             this.isBulkDataAccessAllowed(groups, request.bulkDataAuth);
@@ -67,7 +67,7 @@ export class RBACHandler implements Authorization {
     }
 
     async isBundleRequestAuthorized(request: AuthorizationBundleRequest): Promise<void> {
-        const groups: string[] = request.userIdentity['cognito:groups'] ?? [];
+        const groups: string[] = this.getGroups(request.userIdentity);
 
         const authZPromises: Promise<void>[] = request.requests.map(async (batch: BatchReadWriteRequest) => {
             return this.isAllowed(groups, batch.operation, batch.resourceType);
@@ -78,7 +78,7 @@ export class RBACHandler implements Authorization {
 
     async getAllowedResourceTypesForOperation(request: AllowedResourceTypesForOperationRequest): Promise<string[]> {
         const { userIdentity, operation } = request;
-        const groups: string[] = userIdentity['cognito:groups'] ?? [];
+        const groups: string[] = this.getGroups(userIdentity);
 
         return groups.flatMap(group => {
             const groupRule = this.rules.groupRules[group];
@@ -97,6 +97,20 @@ export class RBACHandler implements Authorization {
 
     // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
     async isWriteRequestAuthorized(_request: WriteRequestAuthorizedRequest): Promise<void> {}
+
+    private getGroups(decoded: { [key: string]: any }): string[] {
+        const groups = decoded['cognito:groups'] ?? [];
+        const scopes = decoded.scope.split(' ');
+
+        // eslint-disable-next-line no-restricted-syntax
+        for (const scope of scopes) {
+            const group = this.rules.groupRules[scope];
+            if (group && !groups.contains(group)) {
+                groups.push(group);
+            }
+        }
+        return groups;
+    }
 
     private isAllowed(groups: string[], operation: TypeOperation | SystemOperation, resourceType?: string): void {
         for (let index = 0; index < groups.length; index += 1) {
