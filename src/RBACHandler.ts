@@ -104,7 +104,7 @@ export class RBACHandler implements Authorization {
 
         // eslint-disable-next-line no-restricted-syntax
         for (const scope of scopes) {
-            const group = this.rules.groupRules[scope];
+            const group = this.rules.scopeToGroup[scope];
             if (group && !groups.contains(group)) {
                 groups.push(group);
             }
