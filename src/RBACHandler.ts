@@ -104,7 +104,7 @@ export class RBACHandler implements Authorization {
 
         scopes.forEach((scope: string) => {
             const group = this.rules.scopeToGroup[scope];
-            if (group && !groups.contains(group)) {
+            if (group && !groups.includes(group)) {
                 groups.push(group);
             }
         });
