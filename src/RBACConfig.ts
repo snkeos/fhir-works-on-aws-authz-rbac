@@ -19,5 +19,5 @@ export interface ScopeToGroup {
 export interface RBACConfig {
     version: number;
     groupRules: GroupRule;
-    scopeToGroup: ScopeToGroup;
+    scopeToGroup?: ScopeToGroup;
 }

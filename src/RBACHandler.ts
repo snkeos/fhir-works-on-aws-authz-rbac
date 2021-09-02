@@ -101,14 +101,14 @@ export class RBACHandler implements Authorization {
     private getGroups(decoded: { [key: string]: any }): string[] {
         const groups = decoded['cognito:groups'] ?? [];
         const scopes = decoded.scope?.split(' ') || [];
-
         scopes.forEach((scope: string) => {
-            const group = this.rules.scopeToGroup[scope];
+            const group = this.rules.scopeToGroup && this.rules.scopeToGroup[scope];
             if (group && !groups.includes(group)) {
                 groups.push(group);
             }
         });
-        return groups;
+        // sort() so that the groups always show in the same order, independently if they are coming from scopes or direct groups
+        return groups.sort();
     }
 
     private isAllowed(groups: string[], operation: TypeOperation | SystemOperation, resourceType?: string): void {
