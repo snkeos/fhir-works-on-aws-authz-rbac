@@ -29,7 +29,7 @@
     "standard-version": "standard-version --skip.tag=true"
   },
   "dependencies": {
-    "fhir-works-on-aws-interface": "^11.1.0",
+    "fhir-works-on-aws-interface": "link:../fhir-works-on-aws-interface",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.20"
   },
